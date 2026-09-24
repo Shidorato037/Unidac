@@ -1,39 +1,18 @@
-# Unidac Industries — Estrutura Organizada
+# Unidac Industries — Versões Separadas
 
 ## Estrutura
-
-```
-Geral/
-├── API/
-├── CONFIG/
-├── CSS/                              ← estilos externos (incluindo os extraídos)
-├── JS/
-├── IMG/
-├── DATABASE/
-├── index.html
-├── administrador/
-├── aluno/
-├── cozinheira/
-├── estoquista/
-├── financeiro/
-├── funcionario/
-├── gerente/
-└── professor/
-```
-
-## Melhorias nesta versão
-- CSS inline foi extraído para arquivos separados
-- Espaços e linhas em branco desnecessários foram removidos
-- Código HTML, CSS e JS reorganizado e indentado de forma consistente
+- `index.html`: login principal único.
+- Cada pasta de cargo contém seu próprio site, CSS, JS e páginas permitidas.
+- O login direciona automaticamente pelo e-mail cadastrado.
 
 ## Contas de demonstração
-- Administrador: `administrador@gmail.com` / 123456
-- Cozinheira: `cozinheira@gmail.com` / 123456
-- Aluno: `aluno@gmail.com` / 123456
-- Professor: `professor@gmail.com` / 123456
-- Estoquista: `estoquista@gmail.com` / 123456
-- Financeiro: `financeiro@gmail.com` / 123456
-- Gerente: `gerente@gmail.com` / 123456
-- Funcionário: `funcionario@gmail.com` / 123456
+- Administrador: `administrador@gmail.com`
+- Cozinheira: `cozinheira@gmail.com`
+- Aluno: `aluno@gmail.com`
+- Professor: `professor@gmail.com`
+- Estoquista: `estoquista@gmail.com`
+- Financeiro: `financeiro@gmail.com`
+- Gerente: `gerente@gmail.com`
+- Funcionário: `funcionario@gmail.com`
 
 Abra `index.html` para iniciar.
