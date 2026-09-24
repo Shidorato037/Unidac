@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Notificações — Área do Aluno</title>
+  <link rel="stylesheet" href="../CSS/style-aluno.css">
+  <link rel="stylesheet" href="../CSS/responsive-aluno.css">
+  <link rel="stylesheet" href="../CSS/style-aluno-notificacoes.css">
+</head>
+<body>
+<!-- ==== MENU LATERAL ==== -->
+
+<aside class="sidebar">
+  <div class="brand">
+<div class="brand-mark">
+  U
+</div>
+<div>
+  <strong>
+    Unidac Industries
+  </strong>
+  <small>
+    Portal do Aluno
+  </small>
+</div>
+  </div>
+  <nav class="nav">
+<a href="dashboard.html">
+  <i>⌂</i>
+  <span>
+    Dashboard
+  </span>
+</a>
+<a href="cardapio.html">
+  <i>🍽</i>
+  <span>
+    Cardápio
+  </span>
+</a>
+<a href="ficha.html">
+  <i>🎫</i>
+  <span>
+    Ficha do Refeitório
+  </span>
+</a>
+<a
+  href="notificacoes.html"
+  class="active">
+  <i>●</i>
+  <span>
+    Notificações
+  </span>
+</a>
+  </nav>
+  <!-- PERFIL -->
+  <div class="profile">
+<div class="profile-box">
+  <div class="avatar">
+    A
+  </div>
+  <div>
+    <strong class="user-name">
+      Aluno
+    </strong>
+    <small class="user-role">
+      Aluno
+    </small>
+  </div>
+</div>
+<!-- BOTÃO SAIR -->
+
+<button class="logout">
+  ↪
+  <span>
+    Sair
+  </span>
+</button>
+  </div>
+</aside>
+<!-- ==== CONTEÚDO PRINCIPAL ==== -->
+
+<main class="main">
+<header class="topbar">
+  <div>
+<h1>
+  Notificações
+</h1>
+<p>
+  Informações importantes sobre a cantina e o refeitório.
+</p>
+  </div>
+  <div class="top-actions">
+<button
+  class="icon-btn"
+  onclick="location.href='notificacoes.html'">
+  ♢
+</button>
+<div class="avatar">
+  A
+</div>
+  </div>
+</header>
+<section class="page">
+  <!-- HERO -->
+  <div class="hero-card">
+<div>
+  <span class="eyebrow">
+    CENTRAL DE AVISOS
+  </span>
+  <h2>
+    Fique por dentro!
+  </h2>
+  <p>
+    Aqui você encontra avisos sobre cardápios,
+    horários, funcionamento e informações do refeitório.
+  </p>
+</div>
+<div class="hero-mark">
+  🔔
+</div>
+  </div>
+  <!-- TÍTULO -->
+  <div class="page-head">
+<div>
+  <h2>
+    Avisos recentes
+  </h2>
+  <p>
+    Informações disponibilizadas pela equipe da cantina.
+  </p>
+</div>
+  </div>
+  <!-- AVISOS -->
+  <div class="card">
+<!-- AVISO 1 -->
+
+<div class="alert">
+  <div class="badge info">
+    i
+  </div>
+  <div>
+    <strong>
+      Cardápio atualizado
+    </strong>
+    <p class="muted">
+      O cardápio deste mês já está disponível
+      para consulta no portal.
+    </p>
+    <small class="muted">
+      Hoje • 08:30
+    </small>
+  </div>
+</div>
+<!-- AVISO 2 -->
+
+<div class="alert">
+  <div class="badge warn">
+    !
+  </div>
+  <div>
+    <strong>
+      Horários das refeições
+    </strong>
+    <p class="muted">
+      1º recreio: 08:40 às 09:00.
+      Almoço: 11:30 às 13:00.
+      2º recreio: 14:40 às 15:00.
+    </p>
+    <small class="muted">
+      Hoje • 07:45
+    </small>
+  </div>
+</div>
+<!-- AVISO 3 -->
+
+<div class="alert">
+  <div class="badge ok">
+    ✓
+  </div>
+  <div>
+    <strong>
+      Refeitório funcionando normalmente
+    </strong>
+    <p class="muted">
+      O atendimento ocorre normalmente
+      durante os horários previstos.
+    </p>
+    <small class="muted">
+      02/09/2026
+    </small>
+  </div>
+</div>
+<!-- AVISO 4 -->
+
+<div class="alert">
+  <div class="badge info">
+    i
+  </div>
+  <div>
+    <strong>
+      Retirada de fichas
+    </strong>
+    <p class="muted">
+      A ficha do refeitório pode ser retirada
+      pelo portal antes do horário da refeição.
+    </p>
+    <small class="muted">
+      01/09/2026
+    </small>
+  </div>
+</div>
+<!-- AVISO 5 -->
+
+<div class="alert">
+  <div class="badge warn">
+    !
+  </div>
+  <div>
+    <strong>
+      Evite desperdícios
+    </strong>
+    <p class="muted">
+      Sirva apenas a quantidade que pretende consumir.
+      Sua colaboração ajuda a reduzir o desperdício
+      de alimentos.
+    </p>
+    <small class="muted">
+      31/08/2026
+    </small>
+  </div>
+</div>
+  </div>
+</section>
+</main>
+<div
+  id="toast"
+  class="toast">
+</div>
+<!-- MODAL DE CONFIRMAÇÃO DE SAÍDA -->
+
+<div
+  class="modal-bg"
+  id="modal-bg"
+>
+  <div class="modal">
+<h3 id="modal-title">
+  Sair do sistema?
+</h3>
+<p
+  id="modal-text"
+  class="muted"
+>
+  Tem certeza que deseja sair da sua conta?
+</p>
+<div class="modal-actions">
+  <button
+    class="btn secondary"
+    id="modal-no"
+  >
+    Voltar
+  </button>
+  <button
+    class="btn danger"
+    id="modal-yes"
+  >
+    Sair
+  </button>
+</div>
+  </div>
+</div>
+<script src="../JS/data-aluno.js"></script>
+<script src="../JS/app-aluno.js"></script>
+<script>
+document.addEventListener(
+  "DOMContentLoaded",
+  ()=> {
+    /*=========================BOTÃO DA FICHA=========================*/
+    const botaoFicha=document.getElementById("fichaBtn");
+    if (botaoFicha) {
+      botaoFicha.addEventListener(
+        "click",
+        ()=> {
+          botaoFicha.textContent="✓ Ficha 067 retirada";
+          botaoFicha.disabled=true;
+          botaoFicha.style.opacity="0.7";
+        }
+      );
+    }
+    /*=========================MODAL DE SAÍDA=========================*/
+    const logout=document.querySelector(".logout");
+    const modalBg=document.getElementById("modal-bg");
+    const modalNo=document.getElementById("modal-no");
+    const modalYes=document.getElementById("modal-yes");
+    if (!logout || !modalBg) return;
+    /* ABRIR MODAL */
+    logout.addEventListener(
+      "click",
+      ()=> {
+        modalBg.style.display="flex";
+      }
+    );
+    /* VOLTAR */
+    modalNo.addEventListener(
+      "click",
+      ()=> {
+        modalBg.style.display="none";
+      }
+    );
+    /* SAIR */
+    modalYes.addEventListener(
+      "click",
+      ()=> {
+        window.location.href="../index.html";
+      }
+    );
+    /* FECHAR CLICANDO FORA */
+    modalBg.addEventListener(
+      "click",
+      (event)=> {
+        if (event.target===modalBg) {
+          modalBg.style.display="none";
+        }
+      }
+    );
+    /* FECHAR COM ESC */
+    document.addEventListener(
+      "keydown",
+      (event)=> {
+        if (
+          event.key==="Escape" &&
+          modalBg.style.display==="flex"
+        ) {
+          modalBg.style.display="none";
+        }
+      }
+    );
+  }
+);
+</script>
+</body>
+</html>
