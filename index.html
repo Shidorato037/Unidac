@@ -430,7 +430,7 @@ async function login(email, password) {
       /* login ok — redireciona sem aviso na pagina inicial */
     }
     setTimeout(function () {
-      location.href = new URL("dashboard.html", window.location.href).href;
+      location.replace("dashboard.html");
     }, 500);
   } catch (err) {
     var msg = (err && err.message) ? err.message : "E-mail ou senha incorretos.";
