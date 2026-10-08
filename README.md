@@ -25,21 +25,6 @@ Tudo grava no Firebase. Quando alguém lança uma informação, ela aparece no s
 
 ---
 
-## Quem usa
-
-| Perfil | Foco |
-|--------|------|
-| Administrador | visão geral, usuários e configurações |
-| Gerente | acompanhamento e decisões |
-| Estoquista | estoque, validades e movimentações |
-| Cozinheira | produção e uso dos insumos |
-| Financeiro | receitas, despesas e saldo |
-| Professor / Funcionário / Aluno | acesso mais restrito ao que cada um precisa |
-
-Páginas comuns (dashboard, estoque, compras etc.) são as mesmas para todos. Só ficam exclusivas as que realmente importam para o cargo — por exemplo, cadastro de usuários para o admin e ficha para o aluno.
-
----
-
 ## Como está organizado
 
 Estrutura direta, sem pastas demais:
