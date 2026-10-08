@@ -1,5 +1,6 @@
 // =====================================================
-// Firebase Configuration - Unidac Industries
+// Firebase - Unidac Industries
+//  (leitura e escrita em tempo real)
 // =====================================================
 const firebaseConfig = {
   apiKey: "AIzaSyA9en_wwMAqJ-1nrPmWuSelZyqjW1po8Vg",
@@ -11,142 +12,215 @@ const firebaseConfig = {
   measurementId: "G-SEEZ6HNTS8"
 };
 
-// Inicializa Firebase (compat)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
-// =====================================================
-// Funções de autenticação e sessão
-// =====================================================
+const VALID_ROLES = [
+  "administrador", "gerente", "estoquista", "cozinheira",
+  "financeiro", "professor", "aluno", "funcionario"
+];
 
-/**
- * Faz login buscando o usuário no Firestore
- */
-async function firebaseLogin(email, password) {
-  const normalizedEmail = email.trim().toLowerCase();
-
-  // Busca o usuário pelo e-mail
-  const snapshot = await db.collection("users")
-    .where("email", "==", normalizedEmail)
-    .limit(1)
-    .get();
-
-  if (snapshot.empty) {
-    throw new Error("E-mail não encontrado.");
-  }
-
-  const doc = snapshot.docs[0];
-  const user = doc.data();
-
-  // Por enquanto a senha ainda é fixa (123456)
-  // Depois podemos evoluir para Firebase Authentication
-  if (password !== "123456") {
-    throw new Error("Senha incorreta.");
-  }
-
-  if (user.active === false) {
-    throw new Error("Usuário desativado.");
-  }
-
-  // Salva sessão
-  const session = {
-    id: doc.id,
-    name: user.name,
-    email: user.email,
-    role: user.role
-  };
-
-  localStorage.setItem("unidacUser", JSON.stringify(session));
-  return session;
+function normalizeRole(role) {
+  if (!role) return "";
+  var r = String(role).trim().toLowerCase();
+  if (r === "admin" || r === "administrator") r = "administrador";
+  if (r === "funcionário" || r === "funcionária") r = "funcionario";
+  return r;
 }
 
-/**
- * Retorna o usuário logado
- */
 function getSession() {
   try {
-    return JSON.parse(localStorage.getItem("unidacUser") || "null");
+    var raw = localStorage.getItem("unidacUser");
+    if (!raw) return null;
+    var u = JSON.parse(raw);
+    if (u && u.role) u.role = normalizeRole(u.role);
+    return u;
   } catch (e) {
     return null;
   }
 }
 
-/**
- * Faz logout
- */
-function firebaseLogout() {
+function saveSession(session) {
+  localStorage.setItem("unidacUser", JSON.stringify(session));
+}
+
+function clearSession() {
   localStorage.removeItem("unidacUser");
-  const base = new URL("../../index.html", window.location.href).href;
-  // Se estiver na raiz
-  if (window.location.pathname.endsWith("index.html") || window.location.pathname.endsWith("/")) {
+}
+
+function goToIndex() {
+  window.location.href = "index.html";
+}
+
+function doLogout(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  if (!confirm("Sair do sistema?\nSua sessão será encerrada neste dispositivo.")) return;
+  clearSession();
+  auth.signOut().finally(function () {
     window.location.href = "index.html";
-  } else {
-    window.location.href = new URL("../../index.html", window.location.href).href;
-  }
+  });
 }
 
-/**
- * Exige que o usuário esteja logado com determinado role
- */
-function requireSession(expectedRole) {
-  const user = getSession();
-  if (!user || (expectedRole && user.role !== expectedRole)) {
-    window.location.href = new URL("../../index.html", window.location.href).href;
-    return null;
-  }
-  return user;
+async function getUserProfileByEmail(email) {
+  var snapshot = await db.collection("users").where("email", "==", email).limit(1).get();
+  if (snapshot.empty) return null;
+  var doc = snapshot.docs[0];
+  return Object.assign({ id: doc.id }, doc.data());
 }
 
-// =====================================================
-// Helpers de dados (Firestore)
-// =====================================================
+async function firebaseLogin(email, password) {
+  var normalizedEmail = (email || "").trim().toLowerCase();
+  if (!normalizedEmail || !password) throw new Error("Preencha e-mail e senha.");
 
-/**
- * Busca todos os documentos de uma coleção
- */
+  var cred;
+  try {
+    cred = await auth.signInWithEmailAndPassword(normalizedEmail, password);
+  } catch (err) {
+    var code = err && err.code ? err.code : "";
+    if (code === "auth/user-not-found" || code === "auth/invalid-credential" || code === "auth/wrong-password") {
+      throw new Error("E-mail ou senha incorretos.");
+    }
+    if (code === "auth/invalid-email") throw new Error("E-mail inválido.");
+    if (code === "auth/too-many-requests") throw new Error("Muitas tentativas. Tente novamente em instantes.");
+    throw new Error(err.message || "Erro ao fazer login.");
+  }
+
+  var profile = await getUserProfileByEmail(normalizedEmail);
+  if (!profile) {
+    await auth.signOut();
+    throw new Error("Usuário autenticado, mas sem perfil  (coleção users).");
+  }
+  if (profile.active === false) {
+    await auth.signOut();
+    throw new Error("Usuário desativado.");
+  }
+
+  var role = normalizeRole(profile.role);
+  if (!role || VALID_ROLES.indexOf(role) === -1) {
+    await auth.signOut();
+    throw new Error("Papel do usuário inválido : " + (profile.role || "(vazio)"));
+  }
+
+  var session = {
+    id: profile.id,
+    uid: cred.user.uid,
+    name: profile.name || role,
+    email: profile.email || normalizedEmail,
+    role: role
+  };
+  saveSession(session);
+  return session;
+}
+
+// ---------- CRUD Firestore ----------
+function withMeta(data) {
+  var session = getSession() || {};
+  return Object.assign({}, data, {
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedBy: session.email || session.name || "sistema"
+  });
+}
+
+async function addDocument(collectionName, data) {
+  var payload = withMeta(data);
+  payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  var ref = await db.collection(collectionName).add(payload);
+  return ref.id;
+}
+
+async function updateDocument(collectionName, id, data) {
+  await db.collection(collectionName).doc(id).set(withMeta(data), { merge: true });
+}
+
+async function deleteDocument(collectionName, id) {
+  await db.collection(collectionName).doc(id).delete();
+}
+
 async function getCollection(name) {
-  const snapshot = await db.collection(name).get();
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  var snapshot = await db.collection(name).get();
+  return snapshot.docs.map(function (doc) {
+    return Object.assign({ id: doc.id }, doc.data());
+  });
+}
+
+/** Escuta em tempo real */
+function listenCollection(name, callback) {
+  return db.collection(name).onSnapshot(
+    function (snapshot) {
+      var list = snapshot.docs.map(function (doc) {
+        return Object.assign({ id: doc.id }, doc.data());
+      });
+      callback(list);
+    },
+    function (err) {
+      console.error("Erro listener " + name + ":", err);
+    }
+  );
+}
+
+async function getNotifications() { return getCollection("notifications"); }
+async function getStock() { return getCollection("stock"); }
+async function getProducts() { return getCollection("products"); }
+async function getPurchases() { return getCollection("purchases"); }
+async function getWaste() { return getCollection("waste"); }
+async function getGoals() { return getCollection("goals"); }
+async function getUsers() { return getCollection("users"); }
+
+/**
+ * Cria usuário no Authentication sem derrubar a sessão do admin logado.
+ * Usa um app Firebase secundário.
+ */
+async function createAuthUser(email, password) {
+  var secondary;
+  try {
+    secondary = firebase.initializeApp(firebaseConfig, "SecondaryApp-" + Date.now());
+    await secondary.auth().createUserWithEmailAndPassword(email, password);
+    await secondary.auth().signOut();
+    return true;
+  } catch (err) {
+    if (err && err.code === "auth/email-already-in-use") {
+      return false; // já existe
+    }
+    throw err;
+  } finally {
+    try {
+      if (secondary) await secondary.delete();
+    } catch (e) {}
+  }
 }
 
 /**
- * Busca notificações
+ * Envia e-mail de redefinicao de senha (Firebase Auth)
  */
-async function getNotifications() {
-  return getCollection("notifications");
+async function resetPasswordByEmail(email) {
+  var normalized = (email || "").trim().toLowerCase();
+  if (!normalized) throw new Error("Informe o e-mail para recuperar a senha.");
+  try {
+    await auth.sendPasswordResetEmail(normalized);
+  } catch (err) {
+    var code = err && err.code ? err.code : "";
+    if (code === "auth/user-not-found") throw new Error("E-mail nao encontrado no Authentication.");
+    if (code === "auth/invalid-email") throw new Error("E-mail invalido.");
+    throw new Error(err.message || "Nao foi possivel enviar o e-mail de recuperacao.");
+  }
 }
 
 /**
- * Busca estoque
+ * Altera a senha do usuario autenticado (min. 6 caracteres)
  */
-async function getStock() {
-  return getCollection("stock");
+async function changePassword(newPassword) {
+  var user = auth.currentUser;
+  if (!user) {
+    // tenta restaurar sessao Auth se so houver localStorage
+    throw new Error("Sessao Auth nao encontrada. Faca login novamente.");
+  }
+  if (!newPassword || String(newPassword).length < 6) {
+    throw new Error("A senha deve ter no minimo 6 caracteres.");
+  }
+  await user.updatePassword(String(newPassword));
 }
 
-/**
- * Busca produtos
- */
-async function getProducts() {
-  return getCollection("products");
-}
-
-/**
- * Busca compras
- */
-async function getPurchases() {
-  return getCollection("purchases");
-}
-
-/**
- * Busca registros de desperdício
- */
-async function getWaste() {
-  return getCollection("waste");
-}
-
-/**
- * Busca metas
- */
-async function getGoals() {
-  return getCollection("goals");
-}

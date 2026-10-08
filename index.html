@@ -24,6 +24,14 @@
         href="css/responsive.css"
     >
 
+
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/unidac-alert.js"></script>
+
+<link rel="stylesheet" href="css/unidac-alert.css">
 </head>
 
 
@@ -358,6 +366,12 @@
 
             <!-- BOTÃO -->
 
+            <p style="margin:10px 0 0;text-align:right">
+              <button type="button" id="forgotPasswordBtn" class="btn" style="background:transparent;border:none;color:#3b82f6;padding:0;font-size:0.9rem;cursor:pointer;text-decoration:underline">
+                Esqueci minha senha
+              </button>
+            </p>
+
             <button
                 class="btn login-btn"
                 type="submit"
@@ -371,17 +385,7 @@
 
             <!-- AVISO -->
 
-            <div class="notice">
-
-                Ambiente demonstrativo • Cada cargo possui
-                uma área independente.
-
-            </div>
-
-
-
-
-        </form>
+            </form>
 
     </section>
 
@@ -410,7 +414,7 @@
    CONTAS DO SISTEMA
    ========================================================= */
 
-/* accounts agora vem do Firestore */
+/* Usuários agora vêm do Firestore */
 
 
 
@@ -419,25 +423,27 @@
    ========================================================= */
 
 
-/* =========================================================
-   LOGIN COM FIREBASE
-   ========================================================= */
-
 async function login(email, password) {
   try {
     const user = await firebaseLogin(email, password);
-
-    showToast("Login realizado com sucesso!");
-
-    // Redireciona conforme o role
-    setTimeout(() => {
-      location.href = user.role + "/pages/dashboard.html";
-    }, 600);
-
+    if (typeof showToast === "function") {
+      /* login ok — redireciona sem aviso na pagina inicial */
+    }
+    setTimeout(function () {
+      location.href = new URL("dashboard.html", window.location.href).href;
+    }, 500);
   } catch (err) {
-    showToast(err.message || "Erro ao fazer login.");
+    var msg = (err && err.message) ? err.message : "E-mail ou senha incorretos.";
+    if (typeof showUnidacAlert === "function") {
+      showUnidacAlert(msg, "error", "Falha no login", 4000);
+    } else if (typeof showToast === "function") {
+      showToast(msg);
+    } else {
+      alert(msg);
+    }
   }
 }
+
 
 
 
@@ -478,12 +484,33 @@ document
 
 </script>
 
-
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var btn = document.getElementById("forgotPasswordBtn");
+  if (!btn) return;
+  btn.addEventListener("click", async function (e) {
+    e.preventDefault();
+    var emailInput = document.getElementById("email");
+    var email = emailInput ? emailInput.value.trim() : "";
+    if (!email) {
+      email = prompt("Digite o e-mail da conta para recuperar a senha:");
+    }
+    if (!email) return;
+    try {
+      if (typeof resetPasswordByEmail !== "function") {
+        alert("Recuperacao indisponivel no momento.");
+        return;
+      }
+      await resetPasswordByEmail(email);
+      if (typeof showUnidacAlert === "function") showUnidacAlert("Enviamos um link de recuperacao para " + email + ". Verifique a caixa de entrada.", "success", "E-mail enviado", 4500);
+      else if (typeof showToast === "function") showToast("E-mail de recuperacao enviado para " + email);
+    } catch (err) {
+      if (typeof showUnidacAlert === "function") showUnidacAlert(err.message || String(err), "error", "Nao foi possivel recuperar", 4000);
+      else if (typeof showToast === "function") showToast(err.message || String(err));
+    }
+  });
+});
+</script>
 
 </body>
 
