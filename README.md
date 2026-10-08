@@ -25,20 +25,18 @@ Tudo grava no Firebase. Quando alguém lança uma informação, ela aparece no s
 
 ---
 
-## Como está organizado
+## Quem usa
 
-Estrutura direta, sem pastas demais:
+| Perfil | Foco |
+|--------|------|
+| Administrador | visão geral, usuários e configurações |
+| Gerente | acompanhamento e decisões |
+| Estoquista | estoque, validades e movimentações |
+| Cozinheira | produção e uso dos insumos |
+| Financeiro | receitas, despesas e saldo |
+| Professor / Funcionário / Aluno | acesso mais restrito ao que cada um precisa |
 
-```text
-/
-  index.html          → login
-  dashboard.html      → painel principal
-  *.html              → demais telas
-  css/                → estilos
-  js/                 → lógica e Firebase
-```
-
-Assim fica mais fácil manter, publicar no GitHub Pages e evoluir o projeto.
+Páginas comuns (dashboard, estoque, compras etc.) são as mesmas para todos. Só ficam exclusivas as que realmente importam para o cargo — por exemplo, cadastro de usuários para o admin e ficha para o aluno.
 
 ---
 
