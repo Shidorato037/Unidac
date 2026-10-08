@@ -22,15 +22,28 @@ function getSessionLocal() {
   }
 }
 
-/** Qualquer usuário autenticado pode usar as páginas compartilhadas */
+function currentPageName() {
+  var p = (location.pathname || "").split("/").pop() || "";
+  return p.toLowerCase() || "index.html";
+}
+
+/** Evita loop: só redireciona para index se NÃO estiver no login */
 function requireSession() {
   var u = typeof getSession === "function" ? getSession() : getSessionLocal();
-  if (!u || !u.role) {
-    if (typeof goToIndex === "function") goToIndex();
-    else window.location.href = "index.html";
+  if (u && u.role) return u;
+
+  var page = currentPageName();
+  if (page === "index.html" || page === "" || page === "preview-alertas.html") {
     return null;
   }
-  return u;
+
+  // Uma única troca de página (sem empilhar histórico)
+  try {
+    window.location.replace("index.html");
+  } catch (e) {
+    window.location.href = "index.html";
+  }
+  return null;
 }
 
 function showToast(msg) {
@@ -58,14 +71,12 @@ function showToast(msg) {
 }
 
 function applyRoleNav(role) {
-  // Páginas exclusivas do admin
   $$(".nav a").forEach(function (a) {
     var href = (a.getAttribute("href") || "").toLowerCase();
     if (href.indexOf("usuarios") !== -1 || href.indexOf("inteligente") !== -1) {
       a.style.display = role === "administrador" ? "" : "none";
     }
   });
-  // Link ficha do aluno: mostra só para aluno
   var fichaLink = document.querySelector('.nav a[href*="ficha"]');
   if (fichaLink) {
     fichaLink.style.display = role === "aluno" ? "" : "none";
@@ -92,9 +103,9 @@ function setup() {
 
   applyRoleNav(role);
 
-  var current = location.pathname.split("/").pop();
+  var current = currentPageName();
   $$(".nav a").forEach(function (a) {
-    var href = a.getAttribute("href") || "";
+    var href = (a.getAttribute("href") || "").toLowerCase();
     if (href === current || href.endsWith("/" + current)) a.classList.add("active");
   });
 
@@ -110,7 +121,7 @@ function setup() {
             }
             if (!confirm("Sair do sistema?\nSua sessão será encerrada neste dispositivo.")) return;
             localStorage.removeItem("unidacUser");
-            window.location.href = "index.html";
+            window.location.replace("index.html");
           };
   });
 

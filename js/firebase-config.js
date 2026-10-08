@@ -50,7 +50,7 @@ function clearSession() {
 }
 
 function goToIndex() {
-  window.location.href = "index.html";
+  window.location.replace("index.html");
 }
 
 function doLogout(e) {
@@ -61,7 +61,7 @@ function doLogout(e) {
   if (!confirm("Sair do sistema?\nSua sessão será encerrada neste dispositivo.")) return;
   clearSession();
   auth.signOut().finally(function () {
-    window.location.href = "index.html";
+    window.location.replace("index.html");
   });
 }
 
